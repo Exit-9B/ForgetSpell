@@ -47,7 +47,7 @@ MagicMenuManager::ForgetSpellConfirmCallback::ForgetSpellConfirmCallback(
 
 void MagicMenuManager::ForgetSpellConfirmCallback::Run(Message a_msg)
 {
-	int response = static_cast<int>(a_msg) - 4;
+	std::int32_t response = static_cast<std::int32_t>(a_msg) - 4;
 	if (response == 0)
 	{
 		ForgetSpell(spell);
@@ -75,7 +75,7 @@ void MagicMenuManager::InstallHooks()
 			dq(a_funcAddr);
 
 			L(retnLbl);
-			dq(a_hookAddr + 5);
+			dq(a_hookAddr + 0x5);
 		}
 	};
 

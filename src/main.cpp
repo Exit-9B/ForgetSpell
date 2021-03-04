@@ -52,7 +52,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	logger::info("ForgetSpell loaded");
 
 	SKSE::Init(a_skse);
-	SKSE::AllocTrampoline(128); // currently using 50
+	SKSE::AllocTrampoline(64);
 	Hooks::Install();
 
 	return true;
