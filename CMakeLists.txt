@@ -122,7 +122,9 @@ find_package(xbyak REQUIRED)
 set(headers
 	src/PCH.h
 	src/Hooks.h
+	src/Offsets.h
 	src/MagicMenuManager.h
+	src/Misc.h
 )
 
 set(sources
@@ -130,6 +132,7 @@ set(sources
 	src/PCH.cpp
 	src/Hooks.cpp
 	src/MagicMenuManager.cpp
+	src/Misc.cpp
 )
 
 source_group(

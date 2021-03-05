@@ -1,7 +1,7 @@
 #include "MagicMenuManager.h"
+#include "Misc.h"
+#include "Offsets.h"
 #include <xbyak/xbyak.h>
-
-constexpr REL::ID MagicMenu_ProcessInput{ 51148 };
 
 RE::MessageBoxData* MakeMessageBox(const char* a_message)
 {
@@ -25,20 +25,6 @@ RE::MessageBoxData* MakeMessageBox(const char* a_message)
 	return nullptr;
 }
 
-void QueueMessage(RE::MessageBoxData* a_messageBox)
-{
-	using func_t = decltype(&QueueMessage);
-	REL::Relocation<func_t> func{ REL::ID{ 51422 } };
-	return func(a_messageBox);
-}
-
-void UpdateList(RE::MagicMenu* a_menu)
-{
-	using func_t = decltype(&UpdateList);
-	REL::Relocation<func_t> func{ REL::ID{ 51163 } };
-	return func(a_menu);
-}
-
 MagicMenuManager::ForgetSpellConfirmCallback::ForgetSpellConfirmCallback(
 	RE::SpellItem* a_spell) :
 	spell(a_spell)
@@ -56,7 +42,7 @@ void MagicMenuManager::ForgetSpellConfirmCallback::Run(Message a_msg)
 
 void MagicMenuManager::InstallHooks()
 {
-	REL::Relocation<std::uintptr_t> hook{ MagicMenu_ProcessInput, 0x2E3 };
+	REL::Relocation<std::uintptr_t> hook{ Offset::MagicMenu_ProcessInput, 0x2E3 };
 
 	struct Patch : Xbyak::CodeGenerator
 	{
@@ -68,7 +54,7 @@ void MagicMenuManager::InstallHooks()
 			mov(rcx, r15);
 			call(ptr[rip + funcLbl]);
 
-			cmp(byte[r15 + 0x1A], 0x77); // original instruction
+			cmp(byte[r15 + 0x1A], 0x77); //< original instruction
 			jmp(ptr[rip + retnLbl]);
 
 			L(funcLbl);
@@ -79,7 +65,7 @@ void MagicMenuManager::InstallHooks()
 		}
 	};
 
-	auto funcAddr = SKSE::unrestricted_cast<std::uintptr_t>(TryForgetSpell);
+	auto funcAddr = SKSE::unrestricted_cast<std::uintptr_t>(StartForgetSpell);
 	Patch patch{ hook.address(), funcAddr };
 
 	auto& trampoline = SKSE::GetTrampoline();
@@ -88,7 +74,7 @@ void MagicMenuManager::InstallHooks()
 	logger::info("Installed hook for forget spell button"sv);
 }
 
-void MagicMenuManager::TryForgetSpell(RE::TESForm* a_item)
+void MagicMenuManager::StartForgetSpell(RE::TESForm* a_item)
 {
 	if (a_item && a_item->formType == RE::FormType::Spell)
 	{
@@ -121,15 +107,17 @@ void MagicMenuManager::ForgetSpell(RE::SpellItem* a_spell)
 	if (playerRef)
 	{
 		playerRef->RemoveSpell(a_spell);
+		for (auto effect : a_spell->effects)
+		{
+			auto equipAbility = effect->baseEffect->data.equipAbility;
+			if (equipAbility)
+			{
+				playerRef->RemoveSpell(equipAbility);
+			}
+		}
 		RE::PlaySound("UIJournalClose");
 
-		auto ui = RE::UI::GetSingleton();
-		auto menu = ui ? ui->GetMenu<RE::MagicMenu>() : nullptr;
-
-		if (menu)
-		{
-			UpdateList(menu.get());
-		}
+		UpdateMagicMenu();
 	}
 }
 
@@ -139,12 +127,6 @@ void MagicMenuManager::ShowConfirmationDialog(RE::SpellItem* a_spell)
 	const char* format = "Do you want to forget %s?";
 	const char* name = a_spell->GetFullName();
 	snprintf(message, 200, format, name);
-
-	if (strlen(message) == 0)
-	{
-		ForgetSpell(a_spell);
-		return;
-	}
 
 	auto messageBox = MakeMessageBox(message);
 	if (messageBox)
@@ -163,7 +145,7 @@ void MagicMenuManager::ShowConfirmationDialog(RE::SpellItem* a_spell)
 					new ForgetSpellConfirmCallback{ a_spell }
 				};
 
-				QueueMessage(messageBox);
+				MessageBoxData_QueueMessage(messageBox);
 			}
 		}
 	}
@@ -186,8 +168,19 @@ void MagicMenuManager::ShowErrorDialog(RE::SpellItem* a_spell)
 			if (sOKText)
 			{
 				messageBox->buttonText.push_back(sOKText->GetString());
-				QueueMessage(messageBox);
+				MessageBoxData_QueueMessage(messageBox);
 			}
 		}
+	}
+}
+
+void MagicMenuManager::UpdateMagicMenu()
+{
+	auto ui = RE::UI::GetSingleton();
+	auto menu = ui ? ui->GetMenu<RE::MagicMenu>() : nullptr;
+
+	if (menu)
+	{
+		MagicMenu_UpdateList(menu.get());
 	}
 }
