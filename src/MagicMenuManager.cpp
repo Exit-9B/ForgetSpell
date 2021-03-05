@@ -3,28 +3,6 @@
 #include "Offsets.h"
 #include <xbyak/xbyak.h>
 
-RE::MessageBoxData* MakeMessageBox(const char* a_message)
-{
-	auto factoryManager = RE::MessageDataFactoryManager::GetSingleton();
-	auto uiStrHolder = RE::InterfaceStrings::GetSingleton();
-
-	if (factoryManager && uiStrHolder)
-	{
-		auto factory = factoryManager->GetCreator<RE::MessageBoxData>(uiStrHolder->messageBoxData);
-		auto messageBox = factory ? factory->Create() : nullptr;
-		if (messageBox)
-		{
-			messageBox->unk4C = 4;
-			messageBox->unk38 = 10;
-			messageBox->bodyText = a_message;
-
-			return messageBox;
-		}
-	}
-
-	return nullptr;
-}
-
 MagicMenuManager::ForgetSpellConfirmCallback::ForgetSpellConfirmCallback(
 	RE::SpellItem* a_spell) :
 	spell(a_spell)
