@@ -205,7 +205,7 @@ class MagicMenu extends ItemMenu
 			if (itemCard.itemInfo.showUnlocked)
 				navPanel.addButton({text: "$Unlock", controls: Input.XButton});
 			else if (itemCard.itemInfo.type == Inventory.ICT_SPELL)
-				navPanel.addButton({text: "Forget", controls: Input.XButton});
+				navPanel.addButton({text: "$Forget", controls: Input.XButton});
 				
 		} else {
 			navPanel.addButton({text: "$Exit", controls: _cancelControls});

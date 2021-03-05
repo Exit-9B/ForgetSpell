@@ -101,12 +101,11 @@ void MagicMenuManager::ForgetSpell(RE::SpellItem* a_spell)
 
 void MagicMenuManager::ShowConfirmationDialog(RE::SpellItem* a_spell)
 {
-	char message[200];
-	const char* format = "Do you want to forget %s?";
-	const char* name = a_spell->GetFullName();
-	snprintf(message, 200, format, name);
+	std::stringstream ss;
+	ss << "$Do you want to forget {" << a_spell->GetFullName() << "}?";
+	auto message = ss.str();
 
-	auto messageBox = MakeMessageBox(message);
+	auto messageBox = MakeMessageBox(message.c_str());
 	if (messageBox)
 	{
 		auto gameSettings = RE::GameSettingCollection::GetSingleton();
@@ -131,12 +130,11 @@ void MagicMenuManager::ShowConfirmationDialog(RE::SpellItem* a_spell)
 
 void MagicMenuManager::ShowErrorDialog(RE::SpellItem* a_spell)
 {
-	char message[200];
-	const char* format = "You cannot forget %s.";
-	const char* name = a_spell->GetFullName();
-	snprintf(message, 200, format, name);
+	std::stringstream ss;
+	ss << "$You cannot forget {" << a_spell->GetFullName() << "}.";
+	auto message = ss.str();
 
-	auto messageBox = MakeMessageBox(message);
+	auto messageBox = MakeMessageBox(message.c_str());
 	if (messageBox)
 	{
 		auto gameSettings = RE::GameSettingCollection::GetSingleton();
