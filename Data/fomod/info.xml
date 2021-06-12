@@ -1,0 +1,10 @@
+<fomod> 
+	<Name>Forget Spell</Name> 
+	<Author>Parapets</Author> 
+	<Version>1.0.0</Version> 
+	<Website>https://www.nexusmods.com/skyrimspecialedition/mods/51125</Website> 
+	<Description>Too many spells cluttering your magic menu? Now you can forget them, directly from the menu!</Description> 
+	<Groups>
+		<element>Miscellaneous</element>
+	</Groups> 
+</fomod> 

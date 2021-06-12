@@ -63,17 +63,17 @@ void MagicMenuManager::StartForgetSpell(RE::TESForm* a_item)
 			auto player = playerRef ? playerRef->GetActorBase() : nullptr;
 			auto spellData = player ? player->actorEffects : nullptr;
 			std::uint32_t numSpells = spellData ? spellData->numSpells : 0;
-			for (std::uint32_t i = 0; i < numSpells; i++)
-			{
-				auto actorSpell = spellData->spells[i];
-				if (actorSpell == spell)
-				{
-					ShowErrorDialog(spell);
-					return;
-				}
-			}
 
-			ShowConfirmationDialog(spell);
+			auto begin = spellData->spells;
+			auto end = spellData->spells + numSpells;
+			if (std::find(begin, end, spell) == end)
+			{
+				ShowConfirmationDialog(spell);
+			}
+			else
+			{
+				ShowErrorDialog(spell);
+			}
 		}
 	}
 }

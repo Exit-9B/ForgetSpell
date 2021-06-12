@@ -1,0 +1,2 @@
+# FOMOD files as UTF-16 LE BOM
+Fomod/*.xml text working-tree-encoding=UTF-16LE-BOM eol=LF

@@ -1,0 +1,43 @@
+<!-- Created with FOMOD Creation Tool 1.7.0.37 [http://www.nexusmods.com/fallout4/mods/6821] --> 
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/ModConfig5.0.xsd"> 
+	<moduleName>Forget Spell</moduleName> 
+	<requiredInstallFiles> 
+		<folder source="SKSE" destination="SKSE" /> 
+	</requiredInstallFiles> 
+	<installSteps order="Explicit"> 
+		<installStep name="Interface"> 
+			<optionalFileGroups order="Explicit"> 
+				<group name="Interface" type="SelectExactlyOne"> 
+					<plugins order="Explicit"> 
+						<plugin name="Don't install"> 
+							<description>Don't install any interface files, for maximum compatibility with other interface mods. This will not add the "Forget" button to the Magic Menu.</description> 
+							<typeDescriptor> 
+								<type name="Optional"/> 
+							</typeDescriptor> 
+						</plugin> 
+						<plugin name="Vanilla UI"> 
+							<description>Choose this if you use the vanilla Skyrim UI for the Magic Menu. This will add the "Forget" button to the menu.</description> 
+							<files> 
+								<folder source="skyrimui\Interface" destination="Interface" priority="0" /> 
+								<folder source="skyrimui\Source" destination="Source" priority="0" /> 
+							</files> 
+							<typeDescriptor> 
+								<type name="Optional"/> 
+							</typeDescriptor> 
+						</plugin> 
+						<plugin name="SkyUI"> 
+							<description>Choose this if you use SkyUI for the Magic Menu. This will add the "Forget" button to the menu.</description> 
+							<files> 
+								<folder source="skyui\Interface" destination="Interface" priority="0" /> 
+								<folder source="skyui\Source" destination="Source" priority="0" /> 
+							</files> 
+							<typeDescriptor> 
+								<type name="Optional"/> 
+							</typeDescriptor> 
+						</plugin> 
+					</plugins> 
+				</group> 
+			</optionalFileGroups> 
+		</installStep> 
+	</installSteps> 
+</config>
