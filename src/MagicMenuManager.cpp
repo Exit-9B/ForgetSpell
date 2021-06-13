@@ -60,13 +60,11 @@ void MagicMenuManager::StartForgetSpell(RE::TESForm* a_item)
 		if (spell && spell->GetSpellType() == RE::MagicSystem::SpellType::kSpell)
 		{
 			auto playerRef = RE::PlayerCharacter::GetSingleton();
-			auto player = playerRef ? playerRef->GetActorBase() : nullptr;
-			auto spellData = player ? player->actorEffects : nullptr;
-			std::uint32_t numSpells = spellData ? spellData->numSpells : 0;
 
-			auto begin = spellData->spells;
-			auto end = spellData->spells + numSpells;
-			if (std::find(begin, end, spell) == end)
+			bool canForgetStartingSpells = true;
+			bool isStartingSpell = IsStartingSpell(playerRef, spell);
+
+			if (canForgetStartingSpells || !isStartingSpell)
 			{
 				ShowConfirmationDialog(spell);
 			}
@@ -84,7 +82,41 @@ void MagicMenuManager::ForgetSpell(RE::SpellItem* a_spell)
 
 	if (playerRef)
 	{
-		playerRef->RemoveSpell(a_spell);
+		if (IsStartingSpell(playerRef, a_spell))
+		{
+			auto player = playerRef->GetActorBase();
+			auto spellData = player ? player->actorEffects : nullptr;
+			if (spellData)
+			{
+				std::vector<RE::SpellItem*> spellsToCopy;
+				spellsToCopy.reserve(static_cast<std::size_t>(spellData->numSpells - 1));
+
+				for (std::uint32_t i = 0; i < spellData->numSpells; i++)
+				{
+					auto spell = spellData->spells[i];
+					if (spell != a_spell)
+					{
+						spellsToCopy.push_back(spell);
+					}
+				}
+
+				auto newNumSpells = static_cast<std::uint32_t>(spellsToCopy.size());
+				auto newSpells = RE::calloc<RE::SpellItem*>(newNumSpells);
+				std::copy(spellsToCopy.cbegin(), spellsToCopy.cend(), newSpells);
+
+				auto oldSpells = spellData->spells;
+
+				spellData->numSpells = newNumSpells;
+				spellData->spells = newSpells;
+
+				RE::free(oldSpells);
+			}
+		}
+		else
+		{
+			playerRef->RemoveSpell(a_spell);
+		}
+
 		for (auto effect : a_spell->effects)
 		{
 			auto equipAbility = effect->baseEffect->data.equipAbility;
@@ -93,10 +125,27 @@ void MagicMenuManager::ForgetSpell(RE::SpellItem* a_spell)
 				playerRef->RemoveSpell(equipAbility);
 			}
 		}
+
 		RE::PlaySound("UIJournalClose");
 
 		UpdateMagicMenu();
 	}
+}
+
+bool MagicMenuManager::IsStartingSpell(RE::Actor* a_actor, RE::SpellItem* a_spell)
+{
+	if (!a_actor || !a_spell)
+		return false;
+
+	auto npc = a_actor->GetActorBase();
+	auto spellData = npc ? npc->actorEffects : nullptr;
+	if (!spellData)
+		return false;
+
+	std::uint32_t numSpells = spellData->numSpells;
+	auto begin = spellData->spells;
+	auto end = spellData->spells + numSpells;
+	return std::find(begin, end, a_spell) != end;
 }
 
 void MagicMenuManager::ShowConfirmationDialog(RE::SpellItem* a_spell)
