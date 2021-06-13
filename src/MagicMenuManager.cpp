@@ -1,6 +1,7 @@
 #include "MagicMenuManager.h"
 #include "Misc.h"
 #include "Offsets.h"
+#include "Settings.h"
 #include <xbyak/xbyak.h>
 
 MagicMenuManager::ForgetSpellConfirmCallback::ForgetSpellConfirmCallback(
@@ -61,10 +62,9 @@ void MagicMenuManager::StartForgetSpell(RE::TESForm* a_item)
 		{
 			auto playerRef = RE::PlayerCharacter::GetSingleton();
 
-			bool canForgetStartingSpells = true;
-			bool isStartingSpell = IsStartingSpell(playerRef, spell);
+			bool canForgetStartingSpells = Settings::GetSingleton()->CanForgetStartingSpells;
 
-			if (canForgetStartingSpells || !isStartingSpell)
+			if (canForgetStartingSpells || !IsStartingSpell(playerRef, spell))
 			{
 				ShowConfirmationDialog(spell);
 			}
@@ -126,7 +126,11 @@ void MagicMenuManager::ForgetSpell(RE::SpellItem* a_spell)
 			}
 		}
 
-		RE::PlaySound("UIJournalClose");
+		auto sound = Settings::GetSingleton()->ForgetSpellSound;
+		if (!sound.empty())
+		{
+			RE::PlaySound(sound.c_str());
+		}
 
 		UpdateMagicMenu();
 	}

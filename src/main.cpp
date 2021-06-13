@@ -1,4 +1,5 @@
 ﻿#include "Hooks.h"
+#include "Settings.h"
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
@@ -26,7 +27,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 	spdlog::set_default_logger(std::move(log));
 	spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
 
-	logger::info("ForgetSpell v1.0.0");
+	logger::info("ForgetSpell v1.1.0"sv);
 
 	a_info->infoVersion = SKSE::PluginInfo::kVersion;
 	a_info->name = "ForgetSpell";
@@ -39,7 +40,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 	const auto ver = a_skse->RuntimeVersion();
 	if (ver < SKSE::RUNTIME_1_5_39) {
-		logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
+		logger::critical(FMT_STRING("Unsupported runtime version {}"sv), ver.string());
 		return false;
 	}
 
@@ -49,11 +50,16 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
-	logger::info("ForgetSpell loaded");
-
 	SKSE::Init(a_skse);
 	SKSE::AllocTrampoline(64);
+
+	Settings::LoadSettings();
+	logger::info("Settings loaded"sv);
+
 	Hooks::Install();
+	logger::info("Hooks installed"sv);
+
+	logger::info("ForgetSpell loaded"sv);
 
 	return true;
 }

@@ -117,6 +117,8 @@ add_subdirectory(extern/CommonLibSSE CommonLibSSE)
 find_package(spdlog REQUIRED)
 find_package(xbyak REQUIRED)
 
+find_path(SIMPLEINI_INCLUDE_DIRS "ConvertUTF.c")
+
 # ---- Add source files ----
 
 set(headers
@@ -125,6 +127,7 @@ set(headers
 	src/Offsets.h
 	src/MagicMenuManager.h
 	src/Misc.h
+	src/Settings.h
 )
 
 set(sources
@@ -133,6 +136,7 @@ set(sources
 	src/Hooks.cpp
 	src/MagicMenuManager.cpp
 	src/Misc.cpp
+	src/Settings.cpp
 )
 
 source_group(
@@ -173,6 +177,7 @@ target_include_directories(${PROJECT_NAME}
 	PRIVATE 
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
         $<INSTALL_INTERFACE:src>
+        ${SIMPLEINI_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME}
