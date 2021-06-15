@@ -155,6 +155,8 @@ void MagicMenuManager::RemoveStartingSpell(RE::Actor* a_actor, RE::SpellItem* a_
 	spellData->spells = newSpells;
 
 	RE::free(oldSpells);
+
+	npc->AddChange(RE::TESNPC::ChangeFlags::kSpellList);
 }
 
 void MagicMenuManager::ShowConfirmationDialog(RE::SpellItem* a_spell)
