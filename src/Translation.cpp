@@ -51,11 +51,33 @@ void Translation::ParseTranslation(const std::string& a_name)
 	const auto scaleformManager = RE::BSScaleformManager::GetSingleton();
 	const auto loader = scaleformManager ? scaleformManager->loader : nullptr;
 	const auto translator = loader
-		? loader->GetStateAddRef<RE::BSScaleformTranslator>(RE::GFxState::StateType::kTranslator)
+		? loader->GetStateAddRef<RE::GFxTranslator>(RE::GFxState::StateType::kTranslator)
 		: nullptr;
 
-	if (!translator) {
-		logger::error("Failed to import translation for {}"sv, a_name);
+#ifndef SKYRIMVR
+	const auto scaleformTranslator = skyrim_cast<RE::BSScaleformTranslator*>(translator);
+#else
+	// FIXME: skyrim_cast needs to be implemented for Skyrim VR
+	constexpr REL::Offset RTDynamicCast_offset{ 0x0138BABA };
+	constexpr REL::Offset RTTI_GFxTranslator_offset{ 0x01F6B868 };
+	constexpr REL::Offset RTTI_BSScaleformTranslator_offset{ 0x01F6B8E8 };
+
+	REL::Relocation<void*(void*, std::int32_t, void*, void*, std::int32_t)>
+		RTDynamicCast{ RTDynamicCast_offset };
+	REL::Relocation<void*> from{ RTTI_GFxTranslator_offset };
+	REL::Relocation<void*> to{ RTTI_BSScaleformTranslator_offset };
+
+	const auto scaleformTranslator = static_cast<RE::BSScaleformTranslator*>(
+		RTDynamicCast(const_cast<void*>(static_cast<const volatile void*>(translator)),
+			0,
+			from.get(),
+			to.get(),
+			false));
+#endif
+
+	if (!scaleformTranslator) {
+		logger::warn("Failed to import translation for {}"sv, a_name);
+		return;
 	}
 
 	const auto iniSettingCollection = RE::INISettingCollection::GetSingleton();
@@ -121,12 +143,11 @@ void Translation::ParseTranslation(const std::string& a_name)
 		// replace \t by \0
 		buf[delimIdx] = 0;
 
-		wchar_t* key = NULL;
-		wchar_t* translation = NULL;
+		wchar_t* key = nullptr;
+		wchar_t* translation = nullptr;
 		GetCachedString(&key, buf, 0);
 		GetCachedString(&translation, &buf[delimIdx + 1], 0);
-		RE::BSTTuple item(key, translation);
-		translator->translator.translationMap.insert(item);
+		scaleformTranslator->translator.translationMap.emplace(key, translation);
 	}
 }
 
