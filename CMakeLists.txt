@@ -33,7 +33,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STR
 
 project(
 	ForgetSpell
-	VERSION 1.2.1
+	VERSION 1.2.2
 	LANGUAGES CXX
 )
 
