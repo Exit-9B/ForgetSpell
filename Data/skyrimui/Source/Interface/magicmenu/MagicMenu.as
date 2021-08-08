@@ -127,7 +127,7 @@ class MagicMenu extends ItemMenu
             if (ItemCard_mc.itemInfo.showUnlocked)
                 unlockOrForgetStr = "$Unlock";
             else if (ItemCard_mc.itemInfo.type == InventoryDefines.ICT_SPELL)
-                unlockOrForgetStr = "Forget";
+                unlockOrForgetStr = "$Forget";
 
 			if ((InventoryLists_mc.ItemsList.selectedEntry.filterFlag & iHideButtonFlag) != 0) {
 				BottomBar_mc.HideButtons();

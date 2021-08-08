@@ -1,0 +1,3 @@
+$Forget	Forget
+$FS_ConfirmForget{}	Do you want to forget {}?
+$FS_CannotForget{}	You cannot forget {}.

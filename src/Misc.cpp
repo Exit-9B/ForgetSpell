@@ -1,6 +1,7 @@
 #include "Misc.h"
+#include "Offsets.h"
 
-RE::MessageBoxData* MakeMessageBox(const char* a_message)
+RE::MessageBoxData* MakeMessageBox(const std::string& a_message)
 {
 	auto factoryManager = RE::MessageDataFactoryManager::GetSingleton();
 	auto uiStrHolder = RE::InterfaceStrings::GetSingleton();
@@ -25,13 +26,13 @@ RE::MessageBoxData* MakeMessageBox(const char* a_message)
 void MessageBoxData_QueueMessage(RE::MessageBoxData* a_messageBox)
 {
 	using func_t = decltype(&MessageBoxData_QueueMessage);
-	REL::Relocation<func_t> func{ REL::ID{ 51422 } };
+	REL::Relocation<func_t> func{ Offset::MessageBoxData_QueueMessage };
 	return func(a_messageBox);
 }
 
 void MagicMenu_UpdateList(RE::MagicMenu* a_menu)
 {
 	using func_t = decltype(&MagicMenu_UpdateList);
-	REL::Relocation<func_t> func{ REL::ID{ 51163 } };
+	REL::Relocation<func_t> func{ Offset::MagicMenu_UpdateList };
 	return func(a_menu);
 }
