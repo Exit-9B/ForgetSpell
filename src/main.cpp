@@ -27,7 +27,7 @@ extern "C" DLLEXPORT bool SKSEAPI
 #endif
 
 	spdlog::set_default_logger(std::move(log));
-	spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
+	spdlog::set_pattern("%s(%#): [%^%l%$] %v"s);
 
 	logger::info("{} v{}"sv, Version::PROJECT, Version::NAME);
 

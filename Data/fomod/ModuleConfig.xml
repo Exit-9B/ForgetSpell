@@ -12,6 +12,9 @@
 					<plugins order="Explicit"> 
 						<plugin name="Skyrim Special Edition"> 
 							<description>Select this if you are playing Skyrim Special Edition.</description> 
+							<conditionFlags> 
+								<flag name="VR">Off</flag> 
+							</conditionFlags> 
 							<files> 
 								<folder source="SkyrimSE" destination="" priority="0" /> 
 							</files> 

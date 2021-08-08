@@ -71,23 +71,23 @@ void Translation::ParseTranslation(const std::string& a_name)
 
 	std::string path = fmt::format("Interface\\Translations\\{}_{}.txt"sv, a_name, language);
 
-	RE::BSResourceNiBinaryStream fileStream{ path.c_str() };
+	RE::BSResourceNiBinaryStream fileStream{ path };
 	if (!fileStream.good()) {
 		return;
 	}
 	else {
-		logger::info("Reading translations from %s..."sv, path.c_str());
+		logger::info("Reading translations from {}..."sv, path);
 	}
 
 	// Check if file is empty, if not check if the BOM is UTF-16
 	std::uint16_t bom = 0;
 	std::uint32_t ret = Read(&fileStream, &bom, sizeof(std::uint16_t));
 	if (ret == 0) {
-		logger::info("Empty translation file."sv);
+		logger::warn("Empty translation file."sv);
 		return;
 	}
 	if (bom != 0xFEFF) {
-		logger::info("BOM Error, file must be encoded in UCS-2 LE."sv);
+		logger::error("BOM Error, file must be encoded in UCS-2 LE."sv);
 		return;
 	}
 
