@@ -2,9 +2,49 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/ModConfig5.0.xsd"> 
 	<moduleName>Forget Spell</moduleName> 
 	<requiredInstallFiles> 
+		<folder source="Interface" destination="Interface" /> 
 		<folder source="SKSE" destination="SKSE" /> 
 	</requiredInstallFiles> 
 	<installSteps order="Explicit"> 
+		<installStep name="Choose Game"> 
+			<optionalFileGroups order="Explicit"> 
+				<group name="Game" type="SelectExactlyOne"> 
+					<plugins order="Explicit"> 
+						<plugin name="Skyrim Special Edition"> 
+							<description>Select this if you are playing Skyrim Special Edition.</description> 
+							<files> 
+								<folder source="SkyrimSE" destination="" priority="0" /> 
+							</files> 
+							<typeDescriptor> 
+								<type name="Optional"/> 
+							</typeDescriptor> 
+						</plugin> 
+						<plugin name="Skyrim VR"> 
+							<description>Select this if you are playing Skyrim VR.</description> 
+							<conditionFlags> 
+								<flag name="VR">On</flag> 
+							</conditionFlags> 
+							<files> 
+								<folder source="SkyrimVR" destination="" priority="0" /> 
+							</files> 
+							<typeDescriptor> 
+								<dependencyType> 
+									<defaultType name="Optional"/> 
+									<patterns> 
+										<pattern> 
+											<dependencies operator="And"> 
+												<fileDependency file="SkyrimVR.esm" state="Active"/> 
+											</dependencies> 
+											<type name="Recommended"/> 
+										</pattern> 
+									</patterns> 
+								</dependencyType> 
+							</typeDescriptor> 
+						</plugin> 
+					</plugins> 
+				</group> 
+			</optionalFileGroups> 
+		</installStep> 
 		<installStep name="Interface"> 
 			<optionalFileGroups order="Explicit"> 
 				<group name="Interface" type="SelectExactlyOne"> 
@@ -17,20 +57,28 @@
 						</plugin> 
 						<plugin name="Vanilla UI"> 
 							<description>Choose this if you use the vanilla Skyrim UI for the Magic Menu. This will add the "Forget" button to the menu.</description> 
-							<files> 
-								<folder source="skyrimui\Interface" destination="Interface" priority="0" /> 
-								<folder source="skyrimui\Source" destination="Source" priority="0" /> 
-							</files> 
+							<conditionFlags> 
+								<flag name="SkyrimUI">On</flag> 
+							</conditionFlags> 
 							<typeDescriptor> 
-								<type name="Optional"/> 
+								<dependencyType> 
+									<defaultType name="Optional"/> 
+									<patterns> 
+										<pattern> 
+											<dependencies operator="And"> 
+												<flagDependency flag="VR" value="On"/> 
+											</dependencies> 
+											<type name="NotUsable"/> 
+										</pattern> 
+									</patterns> 
+								</dependencyType> 
 							</typeDescriptor> 
 						</plugin> 
 						<plugin name="SkyUI"> 
 							<description>Choose this if you use SkyUI for the Magic Menu. This will add the "Forget" button to the menu.</description> 
-							<files> 
-								<folder source="skyui\Interface" destination="Interface" priority="0" /> 
-								<folder source="skyui\Source" destination="Source" priority="0" /> 
-							</files> 
+							<conditionFlags> 
+								<flag name="SkyUI">On</flag> 
+							</conditionFlags> 
 							<typeDescriptor> 
 								<type name="Optional"/> 
 							</typeDescriptor> 
@@ -40,4 +88,35 @@
 			</optionalFileGroups> 
 		</installStep> 
 	</installSteps> 
+	<conditionalFileInstalls> 
+		<patterns> 
+			<pattern> 
+				<dependencies operator="And"> 
+					<flagDependency flag="SkyrimUI" value="On"/> 
+					<flagDependency flag="VR" value="Off"/> 
+				</dependencies> 
+				<files> 
+					<folder source="skyrimui" destination="" priority="0" /> 
+				</files> 
+			</pattern> 
+			<pattern> 
+				<dependencies operator="And"> 
+					<flagDependency flag="SkyUI" value="On"/> 
+					<flagDependency flag="VR" value="Off"/> 
+				</dependencies> 
+				<files> 
+					<folder source="skyui" destination="" priority="0" /> 
+				</files> 
+			</pattern> 
+			<pattern> 
+				<dependencies operator="And"> 
+					<flagDependency flag="SkyUI" value="On"/> 
+					<flagDependency flag="VR" value="On"/> 
+				</dependencies> 
+				<files> 
+					<folder source="skyui-vr" destination="" priority="0" /> 
+				</files> 
+			</pattern> 
+		</patterns> 
+	</conditionalFileInstalls> 
 </config>

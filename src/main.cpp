@@ -1,7 +1,9 @@
-﻿#include "Hooks.h"
+#include "Hooks.h"
 #include "Settings.h"
+#include "Translation.h"
 
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+extern "C" DLLEXPORT bool SKSEAPI
+	SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
 #ifndef NDEBUG
 	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
@@ -11,7 +13,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 		return false;
 	}
 
-	*path /= "ForgetSpell.log"sv;
+	*path /= fmt::format("{}.log"sv, Version::PROJECT);
 	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 #endif
 
@@ -27,11 +29,11 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 	spdlog::set_default_logger(std::move(log));
 	spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
 
-	logger::info("ForgetSpell v1.1.1"sv);
+	logger::info("{} v{}"sv, Version::PROJECT, Version::NAME);
 
 	a_info->infoVersion = SKSE::PluginInfo::kVersion;
-	a_info->name = "ForgetSpell";
-	a_info->version = 1;
+	a_info->name = Version::PROJECT.data();
+	a_info->version = Version::MAJOR;
 
 	if (a_skse->IsEditor()) {
 		logger::critical("Loaded in editor, marking as incompatible"sv);
@@ -39,7 +41,11 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 	}
 
 	const auto ver = a_skse->RuntimeVersion();
+#ifndef SKYRIMVR
 	if (ver < SKSE::RUNTIME_1_5_39) {
+#else
+	if (ver != SKSE::RUNTIME_VR_1_4_15_1) {
+#endif
 		logger::critical(FMT_STRING("Unsupported runtime version {}"sv), ver.string());
 		return false;
 	}
@@ -50,6 +56,8 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
+	logger::info("{} loaded"sv, Version::PROJECT);
+
 	SKSE::Init(a_skse);
 	SKSE::AllocTrampoline(64);
 
@@ -59,7 +67,14 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	Hooks::Install();
 	logger::info("Hooks installed"sv);
 
-	logger::info("ForgetSpell loaded"sv);
+	auto messaging = SKSE::GetMessagingInterface();
+	messaging->RegisterListener(
+		[](SKSE::MessagingInterface::Message* a_msg)
+		{
+			if (a_msg->type == SKSE::MessagingInterface::kDataLoaded) {
+				Translation::ParseTranslation(Version::PROJECT.data());
+			}
+		});
 
 	return true;
 }

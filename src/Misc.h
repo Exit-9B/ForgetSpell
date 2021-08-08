@@ -1,6 +1,6 @@
 #pragma once
 
-RE::MessageBoxData* MakeMessageBox(const char* a_message);
+RE::MessageBoxData* MakeMessageBox(const std::string& a_message);
 
 void MessageBoxData_QueueMessage(RE::MessageBoxData* a_messageBox);
 

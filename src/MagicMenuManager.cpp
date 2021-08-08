@@ -2,10 +2,10 @@
 #include "Misc.h"
 #include "Offsets.h"
 #include "Settings.h"
+#include "Translation.h"
 #include <xbyak/xbyak.h>
 
-MagicMenuManager::ForgetSpellConfirmCallback::ForgetSpellConfirmCallback(
-	RE::SpellItem* a_spell) :
+MagicMenuManager::ForgetSpellConfirmCallback::ForgetSpellConfirmCallback(RE::SpellItem* a_spell) :
 	spell(a_spell)
 {
 }
@@ -13,14 +13,14 @@ MagicMenuManager::ForgetSpellConfirmCallback::ForgetSpellConfirmCallback(
 void MagicMenuManager::ForgetSpellConfirmCallback::Run(Message a_msg)
 {
 	std::int32_t response = static_cast<std::int32_t>(a_msg) - 4;
-	if (response == 0)
-	{
+	if (response == 0) {
 		ForgetSpell(spell);
 	}
 }
 
 void MagicMenuManager::InstallHooks()
 {
+#ifndef SKYRIMVR
 	REL::Relocation<std::uintptr_t> hook{ Offset::MagicMenu_ProcessInput, 0x2E3 };
 
 	struct Patch : Xbyak::CodeGenerator
@@ -33,7 +33,7 @@ void MagicMenuManager::InstallHooks()
 			mov(rcx, r15);
 			call(ptr[rip + funcLbl]);
 
-			cmp(byte[r15 + 0x1A], 0x77); //< original instruction
+			cmp(byte[r15 + 0x1A], 0x77);  // original instruction
 			jmp(ptr[rip + retnLbl]);
 
 			L(funcLbl);
@@ -43,8 +43,38 @@ void MagicMenuManager::InstallHooks()
 			dq(a_hookAddr + 0x5);
 		}
 	};
+#else
+	REL::Relocation<std::uintptr_t> hook{ REL::Offset{ 0x008CBC10 + 0x41 } };
 
-	auto funcAddr = SKSE::unrestricted_cast<std::uintptr_t>(StartForgetSpell);
+	struct Patch : Xbyak::CodeGenerator
+	{
+		Patch(std::uintptr_t a_hookAddr, std::uintptr_t a_funcAddr)
+		{
+			Xbyak::Label funcLbl;
+			Xbyak::Label retnLbl;
+			Xbyak::Label notShoutLbl;
+
+			jz(notShoutLbl);              // original instruction
+
+			mov(rcx, rsi);
+			call(ptr[rip + funcLbl]);
+
+			cmp(byte[rsi + 0x1A], 0x77);  // original instruction
+			jmp(ptr[rip + retnLbl]);
+
+			L(funcLbl);
+			dq(a_funcAddr);
+
+			L(notShoutLbl);
+			dq(a_hookAddr + 0x29D);
+
+			L(retnLbl);
+			dq(a_hookAddr + 0xA);
+		}
+	};
+#endif
+
+	auto funcAddr = reinterpret_cast<std::uintptr_t>(StartForgetSpell);
 	Patch patch{ hook.address(), funcAddr };
 
 	auto& trampoline = SKSE::GetTrampoline();
@@ -55,21 +85,17 @@ void MagicMenuManager::InstallHooks()
 
 void MagicMenuManager::StartForgetSpell(RE::TESForm* a_item)
 {
-	if (a_item && a_item->formType == RE::FormType::Spell)
-	{
-		auto spell = skyrim_cast<RE::SpellItem*>(a_item);
-		if (spell && spell->GetSpellType() == RE::MagicSystem::SpellType::kSpell)
-		{
+	if (a_item && a_item->GetFormType() == RE::FormType::Spell) {
+		auto spell = static_cast<RE::SpellItem*>(a_item);
+		if (spell && spell->GetSpellType() == RE::MagicSystem::SpellType::kSpell) {
 			auto playerRef = RE::PlayerCharacter::GetSingleton();
 
 			bool canForgetStartingSpells = Settings::GetSingleton()->CanForgetStartingSpells;
 
-			if (canForgetStartingSpells || !IsStartingSpell(playerRef, spell))
-			{
+			if (canForgetStartingSpells || !IsStartingSpell(playerRef, spell)) {
 				ShowConfirmationDialog(spell);
 			}
-			else
-			{
+			else {
 				ShowErrorDialog(spell);
 			}
 		}
@@ -80,29 +106,23 @@ void MagicMenuManager::ForgetSpell(RE::SpellItem* a_spell)
 {
 	auto playerRef = RE::PlayerCharacter::GetSingleton();
 
-	if (playerRef)
-	{
-		if (IsStartingSpell(playerRef, a_spell))
-		{
+	if (playerRef) {
+		if (IsStartingSpell(playerRef, a_spell)) {
 			RemoveStartingSpell(playerRef, a_spell);
 		}
-		else
-		{
+		else {
 			playerRef->RemoveSpell(a_spell);
 		}
 
-		for (auto effect : a_spell->effects)
-		{
+		for (auto effect : a_spell->effects) {
 			auto equipAbility = effect->baseEffect->data.equipAbility;
-			if (equipAbility)
-			{
+			if (equipAbility) {
 				playerRef->RemoveSpell(equipAbility);
 			}
 		}
 
 		auto& sound = Settings::GetSingleton()->ForgetSpellSound;
-		if (!sound.empty())
-		{
+		if (!sound.empty()) {
 			RE::PlaySound(sound.c_str());
 		}
 
@@ -136,11 +156,9 @@ void MagicMenuManager::RemoveStartingSpell(RE::Actor* a_actor, RE::SpellItem* a_
 	std::vector<RE::SpellItem*> spellsToCopy;
 	spellsToCopy.reserve(static_cast<std::size_t>(spellData->numSpells));
 
-	for (std::uint32_t i = 0; i < spellData->numSpells; i++)
-	{
+	for (std::uint32_t i = 0; i < spellData->numSpells; i++) {
 		auto spell = spellData->spells[i];
-		if (spell != a_spell)
-		{
+		if (spell != a_spell) {
 			spellsToCopy.push_back(spell);
 		}
 	}
@@ -161,21 +179,16 @@ void MagicMenuManager::RemoveStartingSpell(RE::Actor* a_actor, RE::SpellItem* a_
 
 void MagicMenuManager::ShowConfirmationDialog(RE::SpellItem* a_spell)
 {
-	char message[200];
-	const char* format = "Do you want to forget %s?";
-	const char* name = a_spell->GetFullName();
-	snprintf(message, 200, format, name);
+	auto message = Translation::Translate(
+		fmt::format("$FS_ConfirmForget{{{}}}"sv, a_spell->GetFullName()));
 
 	auto messageBox = MakeMessageBox(message);
-	if (messageBox)
-	{
+	if (messageBox) {
 		auto gameSettings = RE::GameSettingCollection::GetSingleton();
-		if (gameSettings)
-		{
+		if (gameSettings) {
 			auto sYesText = gameSettings->GetSetting("sYesText");
 			auto sNoText = gameSettings->GetSetting("sNoText");
-			if (sYesText && sNoText)
-			{
+			if (sYesText && sNoText) {
 				messageBox->buttonText.push_back(sYesText->GetString());
 				messageBox->buttonText.push_back(sNoText->GetString());
 
@@ -191,20 +204,15 @@ void MagicMenuManager::ShowConfirmationDialog(RE::SpellItem* a_spell)
 
 void MagicMenuManager::ShowErrorDialog(RE::SpellItem* a_spell)
 {
-	char message[200];
-	const char* format = "You cannot forget %s.";
-	const char* name = a_spell->GetFullName();
-	snprintf(message, 200, format, name);
+	auto message = Translation::Translate(
+		fmt::format("$FS_CannotForget{{{}}}"sv, a_spell->GetFullName()));
 
 	auto messageBox = MakeMessageBox(message);
-	if (messageBox)
-	{
+	if (messageBox) {
 		auto gameSettings = RE::GameSettingCollection::GetSingleton();
-		if (gameSettings)
-		{
+		if (gameSettings) {
 			auto sOKText = gameSettings->GetSetting("sOKText");
-			if (sOKText)
-			{
+			if (sOKText) {
 				messageBox->buttonText.push_back(sOKText->GetString());
 				MessageBoxData_QueueMessage(messageBox);
 			}
@@ -217,8 +225,7 @@ void MagicMenuManager::UpdateMagicMenu()
 	auto ui = RE::UI::GetSingleton();
 	auto menu = ui ? ui->GetMenu<RE::MagicMenu>() : nullptr;
 
-	if (menu)
-	{
+	if (menu) {
 		MagicMenu_UpdateList(menu.get());
 	}
 }
