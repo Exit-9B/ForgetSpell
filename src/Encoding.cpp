@@ -12,7 +12,7 @@ auto Encoding::Utf8ToUtf16(const std::string& a_utf8) noexcept -> std::wstring
 	constexpr DWORD kFlags = MB_ERR_INVALID_CHARS;
 
 	if (a_utf8.length() > static_cast<std::size_t>((std::numeric_limits<int>::max)())) {
-		logger::warn("Input string too long to translate"sv);
+		logger::warn("Input string too long to convert"sv);
 		return utf16;
 	}
 
@@ -59,7 +59,7 @@ auto Encoding::Utf16ToUtf8(const std::wstring& a_utf16) noexcept -> std::string
 	constexpr DWORD kFlags = 0;
 
 	if (a_utf16.length() > static_cast<std::size_t>((std::numeric_limits<int>::max)())) {
-		logger::warn("Input string too long to translate"sv);
+		logger::warn("Input string too long to convert"sv);
 		return utf8;
 	}
 

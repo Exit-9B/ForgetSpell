@@ -54,26 +54,7 @@ void Translation::ParseTranslation(const std::string& a_name)
 		? loader->GetStateAddRef<RE::GFxTranslator>(RE::GFxState::StateType::kTranslator)
 		: nullptr;
 
-#ifndef SKYRIMVR
 	const auto scaleformTranslator = skyrim_cast<RE::BSScaleformTranslator*>(translator);
-#else
-	// FIXME: skyrim_cast needs to be implemented for Skyrim VR
-	constexpr REL::Offset RTDynamicCast_offset{ 0x0138BABA };
-	constexpr REL::Offset RTTI_GFxTranslator_offset{ 0x01F6B868 };
-	constexpr REL::Offset RTTI_BSScaleformTranslator_offset{ 0x01F6B8E8 };
-
-	REL::Relocation<void*(void*, std::int32_t, void*, void*, std::int32_t)>
-		RTDynamicCast{ RTDynamicCast_offset };
-	REL::Relocation<void*> from{ RTTI_GFxTranslator_offset };
-	REL::Relocation<void*> to{ RTTI_BSScaleformTranslator_offset };
-
-	const auto scaleformTranslator = static_cast<RE::BSScaleformTranslator*>(
-		RTDynamicCast(const_cast<void*>(static_cast<const volatile void*>(translator)),
-			0,
-			from.get(),
-			to.get(),
-			false));
-#endif
 
 	if (!scaleformTranslator) {
 		logger::warn("Failed to import translation for {}"sv, a_name);
