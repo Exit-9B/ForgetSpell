@@ -10,5 +10,5 @@ if %ERRORLEVEL% NEQ 0 exit 1
 cmake --build buildVR --config Release
 if %ERRORLEVEL% NEQ 0 exit 1
 
-xcopy "build\Release\%1.dll" "Data\SkyrimSE\SKSE\Plugins\%1.dll*" /y
-xcopy "buildVR\Release\%1.dll" "Data\SkyrimVR\SKSE\Plugins\%1.dll*" /y
+xcopy "build\Release\%1.dll" "dist\Data\SkyrimSE\SKSE\Plugins\%1.dll*" /y
+xcopy "buildVR\Release\%1.dll" "dist\Data\SkyrimVR\SKSE\Plugins\%1.dll*" /y

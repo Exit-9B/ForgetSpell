@@ -1,9 +1,9 @@
 #include "MagicMenuManager.h"
 #include "Misc.h"
 #include "Offsets.h"
+#include "Patches.h"
 #include "Settings.h"
 #include "Translation.h"
-#include <xbyak/xbyak.h>
 
 MagicMenuManager::ForgetSpellConfirmCallback::ForgetSpellConfirmCallback(RE::SpellItem* a_spell) :
 	spell(a_spell)
@@ -20,67 +20,7 @@ void MagicMenuManager::ForgetSpellConfirmCallback::Run(Message a_msg)
 
 void MagicMenuManager::InstallHooks()
 {
-#ifndef SKYRIMVR
-	REL::Relocation<std::uintptr_t> hook{ Offset::MagicMenu_ProcessInput, 0x2E3 };
-
-	struct Patch : Xbyak::CodeGenerator
-	{
-		Patch(std::uintptr_t a_hookAddr, std::uintptr_t a_funcAddr)
-		{
-			Xbyak::Label funcLbl;
-			Xbyak::Label retnLbl;
-
-			mov(rcx, r15);
-			call(ptr[rip + funcLbl]);
-
-			cmp(byte[r15 + 0x1A], 0x77);  // original instruction
-			jmp(ptr[rip + retnLbl]);
-
-			L(funcLbl);
-			dq(a_funcAddr);
-
-			L(retnLbl);
-			dq(a_hookAddr + 0x5);
-		}
-	};
-#else
-	REL::Relocation<std::uintptr_t> hook{ REL::Offset{ 0x008CBC10 + 0x41 } };
-
-	struct Patch : Xbyak::CodeGenerator
-	{
-		Patch(std::uintptr_t a_hookAddr, std::uintptr_t a_funcAddr)
-		{
-			Xbyak::Label funcLbl;
-			Xbyak::Label retnLbl;
-			Xbyak::Label notShoutLbl;
-
-			jz(notShoutLbl);              // original instruction
-
-			mov(rcx, rsi);
-			call(ptr[rip + funcLbl]);
-
-			cmp(byte[rsi + 0x1A], 0x77);  // original instruction
-			jmp(ptr[rip + retnLbl]);
-
-			L(funcLbl);
-			dq(a_funcAddr);
-
-			L(notShoutLbl);
-			dq(a_hookAddr + 0x29D);
-
-			L(retnLbl);
-			dq(a_hookAddr + 0xA);
-		}
-	};
-#endif
-
-	auto funcAddr = reinterpret_cast<std::uintptr_t>(StartForgetSpell);
-	Patch patch{ hook.address(), funcAddr };
-
-	auto& trampoline = SKSE::GetTrampoline();
-	trampoline.write_branch<5>(hook.address(), trampoline.allocate(patch));
-
-	logger::info("Installed hook for forget spell button"sv);
+	Patch::WriteForgetSpellPatch(StartForgetSpell);
 }
 
 void MagicMenuManager::StartForgetSpell(RE::TESForm* a_item)

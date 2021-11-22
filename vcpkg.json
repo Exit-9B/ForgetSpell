@@ -1,12 +1,12 @@
 {
   "name": "forgetspell",
-  "version-string": "1.2.2",
+  "version-string": "1.2.3",
   "description": "Forget spells from the magic menu.",
   "homepage": "https://github.com/Exit-9B/ForgetSpell",
   "license": "MIT",
   "dependencies": [
     "boost-stl-interfaces",
-    "span-lite",
+    "rsm-binary-io",
     "spdlog",
     "xbyak",
     "simpleini"

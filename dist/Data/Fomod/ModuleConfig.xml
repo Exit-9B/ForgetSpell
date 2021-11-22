@@ -11,7 +11,7 @@
 				<group name="Game" type="SelectExactlyOne"> 
 					<plugins order="Explicit"> 
 						<plugin name="Skyrim Special Edition"> 
-							<description>Select this if you are playing Skyrim Special Edition.</description> 
+							<description>Select this if you are playing Skyrim Special Edition 1.6. (For older versions, please download the corresponding version of the mod.)</description> 
 							<conditionFlags> 
 								<flag name="VR">Off</flag> 
 							</conditionFlags> 

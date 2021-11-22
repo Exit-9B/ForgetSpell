@@ -1,0 +1,20 @@
+set(SOURCES ${SOURCES}
+	src/Encoding.cpp
+	src/Encoding.h
+	src/Hooks.cpp
+	src/Hooks.h
+	src/MagicMenuManager.cpp
+	src/MagicMenuManager.h
+	src/Misc.cpp
+	src/Misc.h
+	src/Offsets.h
+	src/PCH.cpp
+	src/PCH.h
+	src/Patches.cpp
+	src/Patches.h
+	src/Settings.cpp
+	src/Settings.h
+	src/Translation.cpp
+	src/Translation.h
+	src/main.cpp
+)

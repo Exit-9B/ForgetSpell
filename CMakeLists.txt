@@ -33,7 +33,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STR
 
 project(
 	ForgetSpell
-	VERSION 1.2.2
+	VERSION 1.2.3
 	LANGUAGES CXX
 )
 
@@ -92,33 +92,12 @@ find_package(xbyak REQUIRED)
 
 # ---- Add source files ----
 
-set(HEADERS ${HEADERS}
-	src/PCH.h
-	src/Hooks.h
-	src/Offsets.h
-	src/MagicMenuManager.h
-	src/Misc.h
-	src/Settings.h
-	src/Translation.h
-	src/Encoding.h
-)
-
-set(SOURCES ${SOURCES}
-	src/main.cpp
-	src/PCH.cpp
-	src/Hooks.cpp
-	src/MagicMenuManager.cpp
-	src/Misc.cpp
-	src/Settings.cpp
-	src/Translation.cpp
-	src/Encoding.cpp
-)
+include(cmake/sourcelist.cmake)
 
 source_group(
 	TREE
 		${CMAKE_CURRENT_SOURCE_DIR}
 	FILES
-		${HEADERS}
 		${SOURCES}
 )
 
@@ -134,7 +113,6 @@ source_group(
 add_library(
 	${PROJECT_NAME}
 	SHARED
-	${HEADERS}
 	${SOURCES}
 	${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
 	${CMAKE_CURRENT_BINARY_DIR}/version.rc

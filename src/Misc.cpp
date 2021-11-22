@@ -26,13 +26,13 @@ RE::MessageBoxData* MakeMessageBox(const std::string& a_message)
 void MessageBoxData_QueueMessage(RE::MessageBoxData* a_messageBox)
 {
 	using func_t = decltype(&MessageBoxData_QueueMessage);
-	REL::Relocation<func_t> func{ Offset::MessageBoxData_QueueMessage };
+	REL::Relocation<func_t> func{ Offset::MessageBoxData::QueueMessage };
 	return func(a_messageBox);
 }
 
 void MagicMenu_UpdateList(RE::MagicMenu* a_menu)
 {
 	using func_t = decltype(&MagicMenu_UpdateList);
-	REL::Relocation<func_t> func{ Offset::MagicMenu_UpdateList };
+	REL::Relocation<func_t> func{ Offset::MagicMenu::UpdateList };
 	return func(a_menu);
 }

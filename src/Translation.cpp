@@ -5,7 +5,7 @@
 void Translation::GetCachedString(wchar_t** a_pOut, wchar_t* a_bufIn, std::uint32_t a_unused)
 {
 	using func_t = decltype(&Translation::GetCachedString);
-	REL::Relocation<func_t> func{ Offset::BSScaleformTranslator_GetCachedString };
+	REL::Relocation<func_t> func{ Offset::BSScaleformTranslator::GetCachedString };
 	return func(a_pOut, a_bufIn, a_unused);
 }
 
@@ -13,7 +13,7 @@ auto Translation::Read(RE::BSResourceNiBinaryStream* a_this, void* a_dst, std::u
 	-> std::uint32_t
 {
 	using func_t = decltype(&Translation::Read);
-	REL::Relocation<func_t> func{ Offset::BSResourceNiBinaryStream_Read };
+	REL::Relocation<func_t> func{ Offset::BSResourceNiBinaryStream::Read };
 	return func(a_this, a_dst, a_len);
 }
 
