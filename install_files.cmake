@@ -9,7 +9,7 @@ install(
 
 install(
 	FILES
-		"${CMAKE_CURRENT_SOURCE_DIR}/dist/Data/SKSE/Plugins/${PROJECT_NAME}.ini"
+		"${CMAKE_CURRENT_SOURCE_DIR}/data/SKSE/Plugins/${PROJECT_NAME}.ini"
 	DESTINATION
 		"SKSE/Plugins"
 	COMPONENT Data
@@ -17,7 +17,7 @@ install(
 
 install(
 	FILES
-		"${CMAKE_CURRENT_SOURCE_DIR}/dist/Data/Interface/Translations/${PROJECT_NAME}_ENGLISH.txt"
+		"${CMAKE_CURRENT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_ENGLISH.txt"
 	DESTINATION
 		"Interface/Translations"
 	COMPONENT Data
@@ -25,29 +25,29 @@ install(
 
 install(
 	FILES
-		"${CMAKE_CURRENT_SOURCE_DIR}/dist/Data/skyrimui/Interface/magicmenu.swf"
+		"${CMAKE_CURRENT_SOURCE_DIR}/data/skyrimui/Interface/magicmenu.swf"
 	DESTINATION "Interface"
 	COMPONENT SkyrimUI
 )
 
 install(
 	FILES
-		"${CMAKE_CURRENT_SOURCE_DIR}/dist/Data/skyui/Interface/magicmenu.swf"
+		"${CMAKE_CURRENT_SOURCE_DIR}/data/skyui/Interface/magicmenu.swf"
 	DESTINATION "Interface"
 	COMPONENT SkyUI
 )
 
 install(
 	FILES
-		"${CMAKE_CURRENT_SOURCE_DIR}/dist/Data/skyui-vr/Interface/magicmenu.swf"
+		"${CMAKE_CURRENT_SOURCE_DIR}/data/skyui-vr/Interface/magicmenu.swf"
 	DESTINATION "Interface"
 	COMPONENT SkyUI-VR
 )
 
 install(
 	FILES
-		"${CMAKE_CURRENT_SOURCE_DIR}/dist/Data/Fomod/info.xml"
-		"${CMAKE_CURRENT_SOURCE_DIR}/dist/Data/Fomod/ModuleConfig.xml"
+		"${CMAKE_CURRENT_SOURCE_DIR}/data/Fomod/info.xml"
+		"${CMAKE_CURRENT_SOURCE_DIR}/data/Fomod/ModuleConfig.xml"
 	DESTINATION "fomod"
 	COMPONENT Fomod
 	EXCLUDE_FROM_ALL
