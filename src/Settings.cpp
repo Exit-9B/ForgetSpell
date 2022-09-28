@@ -13,7 +13,9 @@ void Settings::LoadSettings()
 
 	CSimpleIniA ini;
 	ini.SetUnicode();
-	ini.LoadFile(R"(.\Data\SKSE\Plugins\ForgetSpell.ini)");
+
+	auto iniPath = fmt::format(R"(.\Data\SKSE\Plugins\{}.ini)"sv, Plugin::NAME);
+	ini.LoadFile(iniPath.data());
 
 	ini.SetValue("ForgetSpell", nullptr, nullptr);
 
