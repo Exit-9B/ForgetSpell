@@ -20,7 +20,9 @@ install(
 		"${CMAKE_CURRENT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_ENGLISH.txt"
 		"${CMAKE_CURRENT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_GERMAN.txt"
 		"${CMAKE_CURRENT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_ITALIAN.txt"
+		"${CMAKE_CURRENT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_JAPANESE.txt"
 		"${CMAKE_CURRENT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_RUSSIAN.txt"
+		"${CMAKE_CURRENT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_SPANISH.txt"
 	DESTINATION
 		"Interface/Translations"
 	COMPONENT Data
