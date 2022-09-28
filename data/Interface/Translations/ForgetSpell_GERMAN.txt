@@ -1,3 +1,3 @@
-$Forget	Verlernen
-$FS_ConfirmForget{}	Willst du {} verlernen?
-$FS_CannotForget{}	Du kannst {} nicht verlernen.
+$Forget	Vergessen
+$FS_ConfirmForget{}	Willst du {} vergessen?
+$FS_CannotForget{}	Du kannst {} nicht vergessen.
