@@ -1,14 +1,5 @@
 install(
 	FILES
-		"$<TARGET_FILE:${PROJECT_NAME}>"
-		"$<TARGET_PDB_FILE:${PROJECT_NAME}>"
-	DESTINATION
-		"SKSE/Plugins"
-	COMPONENT SKSEPlugin
-)
-
-install(
-	FILES
 		"${CMAKE_CURRENT_SOURCE_DIR}/data/SKSE/Plugins/${PROJECT_NAME}.ini"
 	DESTINATION
 		"SKSE/Plugins"
