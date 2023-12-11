@@ -1,6 +1,5 @@
 #include "Hooks.h"
 #include "Settings.h"
-#include "Translation.h"
 
 namespace
 {
@@ -51,8 +50,6 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version =
 extern "C" DLLEXPORT bool SKSEAPI
 	SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
-	InitializeLog();
-
 	a_info->infoVersion = SKSE::PluginInfo::kVersion;
 	a_info->name = Plugin::NAME.data();
 	a_info->version = Plugin::VERSION[0];
@@ -92,7 +89,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		{
 			switch (a_msg->type) {
 			case SKSE::MessagingInterface::kDataLoaded:
-				Translation::ParseTranslation(Plugin::NAME.data());
+				SKSE::Translation::ParseTranslation(Plugin::NAME.data());
 				break;
 			}
 		});

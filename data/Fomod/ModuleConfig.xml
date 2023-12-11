@@ -11,7 +11,8 @@
 				<group name="Game" type="SelectExactlyOne"> 
 					<plugins order="Explicit"> 
 						<plugin name="Skyrim Special Edition"> 
-							<description>Select this if you are playing Skyrim Special Edition 1.6.629+. (For older versions, please download the corresponding version of the mod.)</description> 
+							<description>Select this if you are playing Skyrim Special Edition 1.6.1130+.</description> 
+							<image path="Fomod\images\skyrim_se.jpg" /> 
 							<conditionFlags> 
 								<flag name="VR">Off</flag> 
 							</conditionFlags> 
@@ -24,6 +25,7 @@
 						</plugin> 
 						<plugin name="Skyrim VR"> 
 							<description>Select this if you are playing Skyrim VR.</description> 
+							<image path="Fomod\images\skyrim_vr.jpg" /> 
 							<conditionFlags> 
 								<flag name="VR">On</flag> 
 							</conditionFlags> 

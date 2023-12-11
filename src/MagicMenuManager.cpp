@@ -3,7 +3,6 @@
 #include "Offsets.h"
 #include "Patches.h"
 #include "Settings.h"
-#include "Translation.h"
 
 MagicMenuManager::ForgetSpellConfirmCallback::ForgetSpellConfirmCallback(RE::SpellItem* a_spell) :
 	spell(a_spell)
@@ -119,8 +118,10 @@ void MagicMenuManager::RemoveStartingSpell(RE::Actor* a_actor, RE::SpellItem* a_
 
 void MagicMenuManager::ShowConfirmationDialog(RE::SpellItem* a_spell)
 {
-	auto message = Translation::Translate(
-		fmt::format("$FS_ConfirmForget{{{}}}"sv, a_spell->GetFullName()));
+	std::string message;
+	SKSE::Translation::Translate(
+		fmt::format("$FS_ConfirmForget{{{}}}"sv, a_spell->GetFullName()),
+		message);
 
 	auto messageBox = MakeMessageBox(message);
 	if (messageBox) {
@@ -144,8 +145,10 @@ void MagicMenuManager::ShowConfirmationDialog(RE::SpellItem* a_spell)
 
 void MagicMenuManager::ShowErrorDialog(RE::SpellItem* a_spell)
 {
-	auto message = Translation::Translate(
-		fmt::format("$FS_CannotForget{{{}}}"sv, a_spell->GetFullName()));
+	std::string message;
+	SKSE::Translation::Translate(
+		fmt::format("$FS_CannotForget{{{}}}"sv, a_spell->GetFullName()),
+		message);
 
 	auto messageBox = MakeMessageBox(message);
 	if (messageBox) {

@@ -48,3 +48,12 @@ install(
 	COMPONENT Fomod
 	EXCLUDE_FROM_ALL
 )
+
+install(
+	FILES
+		"${PROJECT_SOURCE_DIR}/data/fomod/images/skyrim_se.jpg"
+		"${PROJECT_SOURCE_DIR}/data/fomod/images/skyrim_vr.jpg"
+	DESTINATION "fomod/images"
+	COMPONENT Fomod
+	EXCLUDE_FROM_ALL
+)

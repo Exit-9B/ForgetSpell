@@ -1,5 +1,7 @@
 #include "Patches.h"
 #include "Offsets.h"
+
+#pragma warning(disable : 4702)
 #include <xbyak/xbyak.h>
 
 #ifndef SKYRIMVR

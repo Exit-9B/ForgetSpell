@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.24)
 
 project(
 	ForgetSpell
-	VERSION 1.2.5
+	VERSION 1.2.6
 	LANGUAGES CXX
 )
 
