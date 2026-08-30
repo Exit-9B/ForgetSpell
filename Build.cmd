@@ -9,9 +9,9 @@ cmake --install build --component "SkyUI" --prefix "package/skyui" || goto :erro
 cmake --install build --component "SkyUI-VR" --prefix "package/skyui-vr" || goto :error
 cmake --install build --component "SKSEPlugin" --prefix "package/SkyrimSE" || goto :error
 
-cmake --preset vs2022-windows-vr --check-stamp-file "buildVR/CMakeFiles/generate.stamp" || goto :error
-cmake --build buildVR --target "ForgetSpell" --config Release || goto :error
-cmake --install buildVR --component "SKSEPlugin" --prefix "package/SkyrimVR" || goto :error
+cmake --preset vs2022-windows-vr --check-stamp-file "build-vr/CMakeFiles/generate.stamp" || goto :error
+cmake --build build-vr --target "ForgetSpell" --config Release || goto :error
+cmake --install build-vr --component "SKSEPlugin" --prefix "package/SkyrimVR" || goto :error
 
 pushd package || goto :error
 7z a -r -t7Z "../ForgetSpell.7z" *
