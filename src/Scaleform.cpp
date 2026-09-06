@@ -3,12 +3,10 @@
 void Scaleform::InstallHooks()
 {
 #ifndef SKYRIMVR
-		auto hook = REL::Relocation<std::uintptr_t>(
-			RE::Offset::BSScaleformManager::LoadMovie,
-			0x1DD);
+	auto hook = REL::Relocation<std::uintptr_t>(RE::Offset::BSScaleformManager::LoadMovie, 0x1DD);
 #else
-		auto hook = REL::Relocation<std::uintptr_t>(
-			RE::Offset::BSScaleformManager::LoadMovie.address() + 0x1D9);
+	auto hook = REL::Relocation<std::uintptr_t>(
+		RE::Offset::BSScaleformManager::LoadMovie.address() + 0x1D9);
 #endif
 
 	if (!REL::make_pattern<"FF 15">().match(hook.address())) {
@@ -21,42 +19,42 @@ void Scaleform::InstallHooks()
 	_SetViewScaleMode = *reinterpret_cast<std::uintptr_t*>(ptr);
 }
 
+static bool Get(RE::GFxValue* a_result, const RE::GFxValue& a_obj, const char* a_name)
+{
+	if (a_obj.IsObject()) {
+		a_obj.GetMember(a_name, a_result);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+static bool Get(RE::GFxValue* a_result, const RE::GFxValue& a_arr, std::integral auto a_idx)
+{
+	const std::uint32_t idx = static_cast<std::uint32_t>(a_idx);
+	if (a_arr.IsArray() && idx < a_arr.GetArraySize()) {
+		a_arr.GetElement(idx, a_result);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+template <typename Arg, typename... Rest>
+static bool Get(RE::GFxValue* a_result, const RE::GFxValue& a_val, Arg a_arg, Rest... a_rest)
+{
+	if (RE::GFxValue next; Get(&next, a_val, a_arg)) {
+		return Get(a_result, next, a_rest...);
+	}
+	else {
+		return false;
+	}
+}
+
 class UpdateBottomBar : public RE::GFxFunctionHandler
 {
-	static bool Get(RE::GFxValue* a_result, const RE::GFxValue& a_obj, const char* a_name)
-	{
-		if (a_obj.IsObject()) {
-			a_obj.GetMember(a_name, a_result);
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
-	static bool Get(RE::GFxValue* a_result, const RE::GFxValue& a_arr, std::integral auto a_idx)
-	{
-		const std::uint32_t idx = static_cast<std::uint32_t>(a_idx);
-		if (a_arr.IsArray() && idx < a_arr.GetArraySize()) {
-			a_arr.GetElement(idx, a_result);
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
-	template <typename Arg, typename... Rest>
-	static bool Get(RE::GFxValue* a_result, const RE::GFxValue& a_val, Arg a_arg, Rest... a_rest)
-	{
-		if (RE::GFxValue next; Get(&next, a_val, a_arg)) {
-			return Get(a_result, next, a_rest...);
-		}
-		else {
-			return false;
-		}
-	}
-
 	static RE::GFxValue CreateButton(
 		RE::GFxMovie* a_movie,
 		const wchar_t* a_text,
@@ -114,7 +112,8 @@ class UpdateBottomBar : public RE::GFxFunctionHandler
 
 		std::uint32_t uiFilterFlag = 0;
 		if (RE::GFxValue filterFlag;
-			Get(&filterFlag, inventoryLists, "itemList", "selectedEntry", "filterFlag")) {
+			Get(&filterFlag, inventoryLists, "itemList", "selectedEntry", "filterFlag") &&
+			filterFlag.IsNumber()) {
 			uiFilterFlag = static_cast<std::uint32_t>(filterFlag.GetNumber());
 		}
 
@@ -190,7 +189,8 @@ class UpdateBottomBar : public RE::GFxFunctionHandler
 
 			std::uint32_t uiFavoritesFlag = 0;
 			if (RE::GFxValue flag;
-				Get(&flag, inventoryLists, "categoryList", "entryList", 0, "flag")) {
+				Get(&flag, inventoryLists, "categoryList", "entryList", 0, "flag") &&
+				flag.IsNumber()) {
 				uiFavoritesFlag = static_cast<std::uint32_t>(flag.GetNumber());
 			}
 
@@ -277,6 +277,70 @@ class UpdateBottomBar : public RE::GFxFunctionHandler
 	}
 };
 
+class UpdateButtonText : public RE::GFxFunctionHandler
+{
+public:
+	void Call(Params& a_params) override
+	{
+		RE::GFxValue BottomBar_mc;
+		a_params.thisPtr->GetMember("BottomBar_mc", &BottomBar_mc);
+		if (!BottomBar_mc.IsObject()) {
+			return;
+		}
+
+		RE::GFxValue InventoryLists_mc;
+		a_params.thisPtr->GetMember("InventoryLists_mc", &InventoryLists_mc);
+		if (RE::GFxValue selectedEntry;
+			Get(&selectedEntry, InventoryLists_mc, "ItemsList", "selectedEntry")) {
+
+			std::uint32_t uiFilterFlag = 0;
+			if (RE::GFxValue filterFlag;
+				Get(&filterFlag, selectedEntry, "filterFlag") && filterFlag.IsNumber()) {
+				uiFilterFlag = static_cast<std::uint32_t>(filterFlag.GetNumber());
+			}
+
+			std::uint32_t uiFavoritesFlag = 0;
+			if (RE::GFxValue flag;
+				Get(&flag, InventoryLists_mc, "CategoriesList", "entryList", 0, "flag") &&
+				flag.IsNumber()) {
+				uiFavoritesFlag = static_cast<std::uint32_t>(flag.GetNumber());
+			}
+
+			const RE::GFxValue favoriteStr = (uiFilterFlag & uiFavoritesFlag) == 0
+				? L"$Favorite"
+				: L"$Unfavorite";
+
+			RE::GFxValue unlockOrForgetStr = L"";
+			if (RE::GFxValue itemInfo;
+				Get(&itemInfo, *a_params.thisPtr, "ItemCard_mc", "itemInfo") &&
+				itemInfo.IsObject()) {
+				if (RE::GFxValue showUnlocked; itemInfo.GetMember("showUnlocked", &showUnlocked) &&
+					showUnlocked.IsBool() && showUnlocked.GetBool()) {
+					unlockOrForgetStr = L"$Unlock";
+				}
+				else if (RE::GFxValue type; itemInfo.GetMember("type", &type)) {
+					static constexpr double ICT_SPELL = 7;
+					if (type.IsNumber() && type.GetNumber() == ICT_SPELL) {
+						unlockOrForgetStr = L"$Forget";
+					}
+				}
+			}
+
+			RE::GFxValue iHideButtonFlag;
+			a_params.thisPtr->GetMember("iHideButtonFlag", &iHideButtonFlag);
+			if (iHideButtonFlag.IsNumber() &&
+				(uiFilterFlag & static_cast<std::uint32_t>(iHideButtonFlag.GetNumber())) != 0) {
+				BottomBar_mc.Invoke("HideButtons");
+				return;
+			}
+
+			BottomBar_mc.Invoke(
+				"SetButtonsText",
+				std::to_array<RE::GFxValue>({ L"$Equip", favoriteStr, unlockOrForgetStr }));
+		}
+	}
+};
+
 void Scaleform::AddScaleformHooks(
 	RE::GFxMovieView* a_view,
 	RE::GFxMovieView::ScaleModeType a_scaleMode)
@@ -289,8 +353,16 @@ void Scaleform::AddScaleformHooks(
 		return;
 	}
 
-	RE::GFxValue func;
-	auto impl = RE::make_gptr<UpdateBottomBar>();
-	a_view->CreateFunction(&func, impl.get());
-	obj.SetMember("updateBottomBar", func);
+	if (obj.HasMember("updateBottomBar")) {
+		RE::GFxValue func;
+		auto impl = RE::make_gptr<UpdateBottomBar>();
+		a_view->CreateFunction(&func, impl.get());
+		obj.SetMember("updateBottomBar", func);
+	}
+	else {
+		RE::GFxValue func;
+		auto impl = RE::make_gptr<UpdateButtonText>();
+		a_view->CreateFunction(&func, impl.get());
+		obj.SetMember("UpdateButtonText", func);
+	}
 }
