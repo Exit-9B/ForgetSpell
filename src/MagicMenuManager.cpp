@@ -1,21 +1,7 @@
 #include "MagicMenuManager.h"
-#include "Misc.h"
 #include "Offsets.h"
 #include "Patches.h"
 #include "Settings.h"
-
-MagicMenuManager::ForgetSpellConfirmCallback::ForgetSpellConfirmCallback(RE::SpellItem* a_spell) :
-	spell(a_spell)
-{
-}
-
-void MagicMenuManager::ForgetSpellConfirmCallback::Run(Message a_msg)
-{
-	std::int32_t response = static_cast<std::int32_t>(a_msg) - 4;
-	if (response == 0) {
-		ForgetSpell(spell);
-	}
-}
 
 void MagicMenuManager::InstallHooks()
 {
@@ -65,7 +51,11 @@ void MagicMenuManager::ForgetSpell(RE::SpellItem* a_spell)
 			RE::PlaySound(sound.c_str());
 		}
 
-		UpdateMagicMenu();
+		const auto ui = RE::UI::GetSingleton();
+		const auto menu = ui ? ui->GetMenu<RE::MagicMenu>() : nullptr;
+		if (menu) {
+			menu->UpdateList();
+		}
 	}
 }
 
@@ -123,24 +113,24 @@ void MagicMenuManager::ShowConfirmationDialog(RE::SpellItem* a_spell)
 		fmt::format("$FS_ConfirmForget{{{}}}"sv, a_spell->GetFullName()),
 		message);
 
-	auto messageBox = MakeMessageBox(message);
-	if (messageBox) {
-		auto gameSettings = RE::GameSettingCollection::GetSingleton();
-		if (gameSettings) {
-			auto sYesText = gameSettings->GetSetting("sYesText");
-			auto sNoText = gameSettings->GetSetting("sNoText");
-			if (sYesText && sNoText) {
-				messageBox->buttonText.push_back(sYesText->GetString());
-				messageBox->buttonText.push_back(sNoText->GetString());
-
-				messageBox->callback = RE::BSTSmartPointer<RE::IMessageBoxCallback>{
-					new ForgetSpellConfirmCallback{ a_spell }
-				};
-
-				MessageBoxData_QueueMessage(messageBox);
-			}
-		}
+	const auto messageBox = new RE::MessageBoxData();
+	if (!messageBox) {
+		return;
 	}
+
+	messageBox->bodyText = message;
+	messageBox->buttonText.push_back(*"sYesText"_gs);
+	messageBox->buttonText.push_back(*"sNoText"_gs);
+
+	messageBox->SetCallback(
+		[a_spell](std::int8_t a_msg)
+		{
+			if (a_msg == 0) {
+				ForgetSpell(a_spell);
+			}
+		});
+
+	RE::MessageBoxMenu::Create(messageBox);
 }
 
 void MagicMenuManager::ShowErrorDialog(RE::SpellItem* a_spell)
@@ -150,25 +140,14 @@ void MagicMenuManager::ShowErrorDialog(RE::SpellItem* a_spell)
 		fmt::format("$FS_CannotForget{{{}}}"sv, a_spell->GetFullName()),
 		message);
 
-	auto messageBox = MakeMessageBox(message);
-	if (messageBox) {
-		auto gameSettings = RE::GameSettingCollection::GetSingleton();
-		if (gameSettings) {
-			auto sOKText = gameSettings->GetSetting("sOKText");
-			if (sOKText) {
-				messageBox->buttonText.push_back(sOKText->GetString());
-				MessageBoxData_QueueMessage(messageBox);
-			}
-		}
+	const auto messageBox = new RE::MessageBoxData();
+	if (!messageBox) {
+		return;
 	}
-}
 
-void MagicMenuManager::UpdateMagicMenu()
-{
-	auto ui = RE::UI::GetSingleton();
-	auto menu = ui ? ui->GetMenu<RE::MagicMenu>() : nullptr;
-
-	if (menu) {
-		MagicMenu_UpdateList(menu.get());
+	messageBox->bodyText = message;
+	if (const auto sOKText = "sOKText"_gs) {
+		messageBox->buttonText.push_back(*sOKText);
+		RE::MessageBoxMenu::Create(messageBox);
 	}
 }

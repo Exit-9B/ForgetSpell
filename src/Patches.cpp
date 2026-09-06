@@ -7,7 +7,7 @@
 #ifndef SKYRIMVR
 bool Patch::WriteForgetSpellPatch(ForgetSpellCallback* a_callback)
 {
-	REL::Relocation<std::uintptr_t> hook{ Offset::MagicMenu::ProcessInput, 0x34F };
+	REL::Relocation<std::uintptr_t> hook{ RE::Offset::MagicMenu::ProcessInput, 0x34F };
 
 	struct Patch : Xbyak::CodeGenerator
 	{
@@ -44,7 +44,7 @@ bool Patch::WriteForgetSpellPatch(ForgetSpellCallback* a_callback)
 
 bool Patch::WriteForgetSpellPatch(ForgetSpellCallback* a_callback)
 {
-	std::uintptr_t hookAddr{ Offset::MagicMenu::HandleUnlockInput.address() + 0x41 };
+	std::uintptr_t hookAddr{ RE::Offset::MagicMenu::HandleUnlockInput.address() + 0x41 };
 
 	struct Patch : Xbyak::CodeGenerator
 	{

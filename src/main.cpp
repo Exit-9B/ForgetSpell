@@ -1,4 +1,4 @@
-#include "Hooks.h"
+#include "MagicMenuManager.h"
 #include "Settings.h"
 
 namespace
@@ -80,7 +80,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	Settings::LoadSettings();
 	logger::info("Settings loaded"sv);
 
-	Hooks::Install();
+	MagicMenuManager::InstallHooks();
 	logger::info("Hooks installed"sv);
 
 	auto messaging = SKSE::GetMessagingInterface();
