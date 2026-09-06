@@ -21,27 +21,6 @@ install(
 
 install(
 	FILES
-		"${CMAKE_CURRENT_SOURCE_DIR}/data/skyrimui/Interface/magicmenu.swf"
-	DESTINATION "Interface"
-	COMPONENT SkyrimUI
-)
-
-install(
-	FILES
-		"${CMAKE_CURRENT_SOURCE_DIR}/data/skyui/Interface/magicmenu.swf"
-	DESTINATION "Interface"
-	COMPONENT SkyUI
-)
-
-install(
-	FILES
-		"${CMAKE_CURRENT_SOURCE_DIR}/data/skyui-vr/Interface/magicmenu.swf"
-	DESTINATION "Interface"
-	COMPONENT SkyUI-VR
-)
-
-install(
-	FILES
 		"${CMAKE_CURRENT_SOURCE_DIR}/data/Fomod/info.xml"
 		"${CMAKE_CURRENT_SOURCE_DIR}/data/Fomod/ModuleConfig.xml"
 	DESTINATION "fomod"

@@ -1,4 +1,5 @@
 #include "MagicMenuManager.h"
+#include "Scaleform.h"
 #include "Settings.h"
 
 namespace
@@ -88,6 +89,11 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		[](SKSE::MessagingInterface::Message* a_msg)
 		{
 			switch (a_msg->type) {
+			case SKSE::MessagingInterface::kInputLoaded:
+				if (Settings::GetSingleton()->EnableButtonPrompt) {
+					Scaleform::InstallHooks();
+				}
+				break;
 			case SKSE::MessagingInterface::kDataLoaded:
 				SKSE::Translation::ParseTranslation(Plugin::NAME.data());
 				break;

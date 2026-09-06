@@ -21,4 +21,5 @@ void Settings::LoadSettings()
 
 	settings->ForgetSpellSound = ini.GetValue("ForgetSpell", "sForgetSpellSound", "");
 	settings->CanForgetStartingSpells = ini.GetBoolValue("ForgetSpell", "bCanForgetStartingSpells", true);
+	settings->EnableButtonPrompt = ini.GetBoolValue("ForgetSpell", "bEnableButtonPrompt", true);
 }
