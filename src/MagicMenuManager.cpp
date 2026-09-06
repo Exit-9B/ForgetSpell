@@ -32,6 +32,27 @@ void MagicMenuManager::ForgetSpell(RE::SpellItem* a_spell)
 	auto playerRef = RE::PlayerCharacter::GetSingleton();
 
 	if (playerRef) {
+		if (const auto actorEquipManager = RE::ActorEquipManager::GetSingleton()) {
+			if (playerRef->selectedSpells[RE::Actor::SlotTypes::kLeftHand] == a_spell) {
+				actorEquipManager->UnequipSpell(
+					playerRef,
+					a_spell,
+					RE::BGSEquipSlot::GetLeftHandSlot());
+			}
+			if (playerRef->selectedSpells[RE::Actor::SlotTypes::kRightHand] == a_spell) {
+				actorEquipManager->UnequipSpell(
+					playerRef,
+					a_spell,
+					RE::BGSEquipSlot::GetRightHandSlot());
+			}
+			if (playerRef->selectedSpells[RE::Actor::SlotTypes::kPowerOrShout] == a_spell) {
+				actorEquipManager->UnequipSpell(
+					playerRef,
+					a_spell,
+					RE::BGSEquipSlot::GetVoiceSlot());
+			}
+		}
+
 		if (IsStartingSpell(playerRef, a_spell)) {
 			RemoveStartingSpell(playerRef, a_spell);
 		}
