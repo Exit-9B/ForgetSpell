@@ -69,6 +69,30 @@ class UpdateBottomBar : public RE::GFxFunctionHandler
 		return button;
 	}
 
+#if defined(SKYRIMVR)
+	static RE::GFxValue CreatePlatformControls(
+		RE::GFxMovie* a_movie,
+		const char* a_PCArt,
+		const char* a_XBoxArt,
+		const char* a_PS3Art,
+		const char* a_ViveArt,
+		const char* a_MoveArt,
+		const char* a_OculusArt,
+		const char* a_WindowsMRArt)
+	{
+		RE::GFxValue controls;
+		a_movie->CreateObject(&controls);
+		controls.SetMember("PCArt", a_PCArt);
+		controls.SetMember("XBoxArt", a_XBoxArt);
+		controls.SetMember("PS3Art", a_PS3Art);
+		controls.SetMember("ViveArt", a_ViveArt);
+		controls.SetMember("MoveArt", a_MoveArt);
+		controls.SetMember("OculusArt", a_OculusArt);
+		controls.SetMember("WindowsMRArt", a_WindowsMRArt);
+		return controls;
+	}
+#endif
+
 	void Call(Params& a_params) override
 	{
 		RE::GFxValue a_bSelected;
@@ -97,16 +121,69 @@ class UpdateBottomBar : public RE::GFxFunctionHandler
 		static constexpr std::uint32_t FILTERFLAG_MAGIC_ACTIVEEFFECTS = 0x00000100;
 
 		if (bSelected && (uiFilterFlag & FILTERFLAG_MAGIC_ACTIVEEFFECTS) == 0) {
+			RE::GFxValue Equip, YButton, XButton;
+#if !defined(SKYRIMVR)
 			RE::GFxValue Input;
 			a_params.movie->GetVariable(&Input, "skyui.defines.Input");
 			if (!Input.IsObject()) {
 				return;
 			}
 
-			RE::GFxValue Equip, YButton, XButton;
 			Input.GetMember("Equip", &Equip);
 			Input.GetMember("YButton", &YButton);
 			Input.GetMember("XButton", &XButton);
+#else
+			RE::GFxValue Input;
+			a_params.movie->GetVariable(&Input, "skyui.util.Input");
+			if (!Input.IsObject()) {
+				return;
+			}
+
+			RE::GFxValue _platform;
+			a_params.thisPtr->GetMember("_platform", &_platform);
+
+			Input.Invoke(
+				"pickControls",
+				&Equip,
+				std::array{ _platform,
+							CreatePlatformControls(
+								a_params.movie,
+								"E",
+								"360_A",
+								"PS3_A",
+								"trigger",
+								"PS3_MOVE",
+								"trigger",
+								"trigger") });
+
+			Input.Invoke(
+				"pickControls",
+				&YButton,
+				std::array{ _platform,
+							CreatePlatformControls(
+								a_params.movie,
+								"F",
+								"360_Y",
+								"PS3_Y",
+								"radial_Either_Right",
+								"PS3_Y",
+								"OCC_B",
+								"radial_Either_Right") });
+
+			Input.Invoke(
+				"pickControls",
+				&XButton,
+				std::array{ _platform,
+							CreatePlatformControls(
+								a_params.movie,
+								"R",
+								"360_X",
+								"PS3_X",
+								"radial_Either_Left",
+								"PS3_X",
+								"OCC_Y",
+								"radial_Either_Left") });
+#endif
 
 			RE::GFxValue equipButton = CreateButton(a_params.movie, L"$Equip", Equip);
 			navPanel.Invoke("addButton", std::array{ equipButton });
@@ -145,6 +222,7 @@ class UpdateBottomBar : public RE::GFxFunctionHandler
 			}
 		}
 		else {
+#if !defined(SKYRIMVR)
 			RE::GFxValue _cancelControls;
 			a_params.thisPtr->GetMember("_cancelControls", &_cancelControls);
 			RE::GFxValue exitButton = CreateButton(a_params.movie, L"$Exit", _cancelControls);
@@ -154,30 +232,45 @@ class UpdateBottomBar : public RE::GFxFunctionHandler
 			a_params.thisPtr->GetMember("_searchControls", &_searchControls);
 			RE::GFxValue searchButton = CreateButton(a_params.movie, L"$Search", _searchControls);
 			navPanel.Invoke("addButton", std::array{ searchButton });
+#endif
 
 			if (RE::GFxValue _platform; Get(&_platform, *a_params.thisPtr, "_platform") &&
 				_platform.IsNumber() && _platform.GetNumber() != 0) {
+				RE::GFxValue columnButton;
+				a_params.movie->CreateObject(&columnButton);
+				columnButton.SetMember("text", L"$Column");
 				RE::GFxValue _sortColumnControls;
+#if !defined(SKYRIMVR)
 				a_params.thisPtr->GetMember("_sortColumnControls", &_sortColumnControls);
-				RE::GFxValue columnButton = CreateButton(
-					a_params.movie,
-					L"$Column",
-					_sortColumnControls);
+#else
+				a_params.movie->CreateObject(&_sortColumnControls);
+				_sortColumnControls.SetMember("namedKey", "Action_Up");
+#endif
+				columnButton.SetMember("controls", _sortColumnControls);
+				navPanel.Invoke("addButton", std::array{ columnButton });
 
+				RE::GFxValue orderButton;
+				a_params.movie->CreateObject(&orderButton);
+				orderButton.SetMember("text", L"$Order");
 				RE::GFxValue _sortOrderControls;
+#if !defined(SKYRIMVR)
 				a_params.thisPtr->GetMember("_sortOrderControls", &_sortOrderControls);
-				RE::GFxValue orderButton = CreateButton(
-					a_params.movie,
-					L"$Order",
-					_sortOrderControls);
+#else
+				a_params.movie->CreateObject(&_sortOrderControls);
+				_sortOrderControls.SetMember("namedKey", "Action_Double_Up");
+#endif
+				orderButton.SetMember("controls", _sortOrderControls);
+				navPanel.Invoke("addButton", std::array{ orderButton });
 			}
 
+#if !defined(SKYRIMVR)
 			RE::GFxValue _switchControls;
 			a_params.thisPtr->GetMember("_switchControls", &_switchControls);
 			RE::GFxValue inventoryButton = CreateButton(
 				a_params.movie,
 				L"$Inventory",
 				_switchControls);
+#endif
 		}
 
 		navPanel.Invoke("updateButtons", std::to_array<RE::GFxValue>({ true }));
